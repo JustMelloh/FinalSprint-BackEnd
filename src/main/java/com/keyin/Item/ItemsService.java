@@ -21,6 +21,10 @@ public class ItemsService {
         return itemsRepository.findById(id);
     }
 
+    public Item getItemByName(String name) {
+        return itemsRepository.findByName(name);
+    }
+
     public Item saveItem(Item item) {
         return itemsRepository.save(item);
     }

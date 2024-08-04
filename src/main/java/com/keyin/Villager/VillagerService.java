@@ -25,27 +25,52 @@ public class VillagerService {
     }
 
     public Villager saveVillager(Villager villager) {
+        if (villager.getLoves() != null) {
+            for (Item item : villager.getLoves()) {
+                if (itemsService.getItemByName(item.getName()) == null) {
+                    itemRepository.save(item);
+                }
+            }    
+        } else if (villager.getLikes() != null) {
+            for (Item item : villager.getLikes()) {
+                if (itemsService.getItemByName(item.getName()) == null) {
+                    itemRepository.save(item);
+                }
+            }
+        } else if (villager.getDislikes() != null) {
+            for (Item item : villager.getDislikes()) {
+                if (itemsService.getItemByName(item.getName()) == null) {
+                    itemRepository.save(item);
+                }
+            }
+        }
         return villagerRepository.save(villager);
     }
-
-    public void deleteVillager(Villager villager) {
+    
+    public void deleteVillagerById(Long id) {
+        Villager villager = getVillagerById(id);
         villagerRepository.delete(villager);
     }
 
-    public void deleteVillagerByName(String name) {
-        Villager villager = villagerRepository.findByName(name);
-        villagerRepository.delete(villager);
-    }
-
-    public Villager updateVillager(Villager villager) {
-        return villagerRepository.save(villager);
+    public Villager updateVillager(Long id, Villager villager) {
+        Villager oldVillager = getVillagerById(id);
+        if (oldVillager == null) {
+            throw new IllegalArgumentException("Villager not found");
+        } else {
+            oldVillager.setName(villager.getName());
+            oldVillager.setBirthday(villager.getBirthday());
+            oldVillager.setLoves(villager.getLoves());
+            oldVillager.setLikes(villager.getLikes());
+            oldVillager.setDislikes(villager.getDislikes());
+            return villagerRepository.save(oldVillager);
+        }
     }
 
     public Villager getVillagerById(Long id) {
         return villagerRepository.findById(id).orElse(null);
     }
 
-    public Iterable<Villager> getAllVillagers() {
+    public List<Villager> getAllVillagers() {
         return villagerRepository.findAll();
     }
 
@@ -71,8 +96,10 @@ public class VillagerService {
             villager.setLoves(loves);
             villagerRepository.save(villager);
         } else {
+            List<Item> loves = villager.getLoves();
             itemRepository.save(item);
-            villager.getLoves().add(item);
+            loves.add(item);
+            villager.setLoves(loves);
             villagerRepository.save(villager);
         }
     }
@@ -87,8 +114,10 @@ public class VillagerService {
             villager.setLikes(likes);
             villagerRepository.save(villager);
         } else {
+            List<Item> likes = villager.getLikes();
             itemRepository.save(item);
-            villager.getLikes().add(item);
+            likes.add(item);
+            villager.setLikes(likes);
             villagerRepository.save(villager);
         }
     }
@@ -103,23 +132,47 @@ public class VillagerService {
             villager.setDislikes(dislikes);
             villagerRepository.save(villager);
         } else {
+            List<Item> dislikes = villager.getDislikes();
             itemRepository.save(item);
-            villager.getDislikes().add(item);
+            dislikes.add(item);
+            villager.setDislikes(dislikes);
             villagerRepository.save(villager);
         }
     }
 
-    public void removeVillagerLove(Long villagerId, Long itemId) {
-        Villager villager = getVillagerById(villagerId);
-        Item item = itemsService.getItemById(itemId).orElse(null);
+    public void removeVillagerLove(Long id, Item item) {
+        Villager villager = getVillagerById(id);
         if (villager == null) {
             throw new IllegalArgumentException("Villager not found");
-        } else if (item == null) {
-            throw new IllegalArgumentException("Item not found");
         } else {
             List<Item> loves = villager.getLoves();
             loves.remove(item);
             villager.setLoves(loves);
+            villagerRepository.save(villager);
+        }
+    }
+
+    public void removeVillagerLike(Long id, Item item) {
+        Villager villager = getVillagerById(id);
+        if (villager == null) {
+            throw new IllegalArgumentException("Villager not found");
+        } else {
+            List<Item> likes = villager.getLikes();
+            likes.remove(item);
+            villager.setLikes(likes);
+            villagerRepository.save(villager);
+        }
+    }
+
+
+    public void removeVillagerDislike(Long id, Item item) {
+        Villager villager = getVillagerById(id);
+        if (villager == null) {
+            throw new IllegalArgumentException("Villager not found");
+        } else {
+            List<Item> dislikes = villager.getDislikes();
+            dislikes.remove(item);
+            villager.setDislikes(dislikes);
             villagerRepository.save(villager);
         }
     }

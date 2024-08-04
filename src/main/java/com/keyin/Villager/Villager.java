@@ -7,6 +7,7 @@ import com.keyin.Item.Item;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 @Entity
 public class Villager {
@@ -20,8 +21,11 @@ public class Villager {
 
     private String birthday;
 
+    @ManyToMany
     private List<Item> loves;
+    @ManyToMany
     private List<Item> likes;
+    @ManyToMany
     private List<Item> dislikes;
 
     public Villager(String name, String birthday, List<Item> loves, List<Item> likes, List<Item> dislikes) {
