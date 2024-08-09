@@ -1,5 +1,6 @@
 package com.keyin.Villager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,28 +26,41 @@ public class VillagerService {
     }
 
     public Villager saveVillager(Villager villager) {
-        if (villager.getLoves() != null) {
-            for (Item item : villager.getLoves()) {
-                if (itemsService.getItemByName(item.getName()) == null) {
-                    itemRepository.save(item);
-                }
-            }    
-        } else if (villager.getLikes() != null) {
-            for (Item item : villager.getLikes()) {
-                if (itemsService.getItemByName(item.getName()) == null) {
-                    itemRepository.save(item);
-                }
-            }
-        } else if (villager.getDislikes() != null) {
-            for (Item item : villager.getDislikes()) {
-                if (itemsService.getItemByName(item.getName()) == null) {
+        Villager newVillager = new Villager();
+        List <Item> loves = new ArrayList<>();
+        List <Item> likes = new ArrayList<>();
+        List <Item> dislikes = new ArrayList<>();
+        saveItemsIfNotExist(villager.getLoves());
+        saveItemsIfNotExist(villager.getLikes());
+        saveItemsIfNotExist(villager.getDislikes());
+        newVillager.setName(villager.getName());
+        newVillager.setBirthday(villager.getBirthday());
+        System.out.println(villager.getLoves());
+        for (Item item : villager.getLoves()) {
+            loves.add(itemRepository.findByName(item.getName()));
+        }
+        for (Item item : villager.getLikes()) {
+            likes.add(itemRepository.findByName(item.getName()));
+        }
+        for (Item item : villager.getDislikes()) {
+            dislikes.add(itemRepository.findByName(item.getName()));
+        }
+        newVillager.setLoves(loves);
+        newVillager.setLikes(likes);
+        newVillager.setDislikes(dislikes);
+        return villagerRepository.save(newVillager);
+    }
+    
+    private void saveItemsIfNotExist(List<Item> items) {
+        if (items != null) {
+            for (Item item : items) {
+                if (itemRepository.findByName(item.getName()) == null) {
+
                     itemRepository.save(item);
                 }
             }
         }
-        return villagerRepository.save(villager);
     }
-    
     public void deleteVillagerById(Long id) {
         Villager villager = getVillagerById(id);
         villagerRepository.delete(villager);
